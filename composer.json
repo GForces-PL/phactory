@@ -1,6 +1,6 @@
 {
-    "name": "chriskite/phactory",
-    "description": "A Database Factory for PHP Unit Tests",
+    "name": "maciej-bielski/phactory",
+    "description": "Fork of a Database Factory for PHP Unit Tests",
     "keywords": ["testing","database","mysql","sqlite","mongodb"],
     "homepage": "http://phactory.org",
     "require": {
