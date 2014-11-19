@@ -75,8 +75,12 @@ class Phactory {
      * @param array $overrides key => value pairs of column => value
      * @return object Row
      */
-    public function create($table, $overrides = array()) {
-        return $this->createWithAssociations($table, array(), $overrides);
+    public function create($blueprint_name, $overrides = array(), $returnIfExists = false) {
+        if(! ($blueprint = $this->_blueprints[$blueprint_name]) ) {
+            throw new \Exception("No blueprint defined for '$blueprint_name'");
+        }
+
+        return $blueprint->create($overrides, $returnIfExists);
     }
 
     /*
@@ -90,25 +94,6 @@ class Phactory {
      */
     public function build($table, $overrides = array()) {
         return $this->buildWithAssociations($table, array(), $overrides);
-    }
-
-    /*
-     * Instantiate a row in the specified table, optionally
-     * overriding some or all of the default values.
-     * The row is saved to the database, and returned
-     * as a Row.
-     *
-     * @param string $blueprint_name name of the blueprint to use 
-     * @param array $associations [table name] => [Row]
-     * @param array $overrides key => value pairs of column => value
-     * @return object Row
-     */
-    public function createWithAssociations($blueprint_name, $associations = array(), $overrides = array()) {
-        if(! ($blueprint = $this->_blueprints[$blueprint_name]) ) {
-            throw new \Exception("No blueprint defined for '$blueprint_name'");
-        }
-            
-        return $blueprint->create($overrides, $associations);
     }
 
     /*

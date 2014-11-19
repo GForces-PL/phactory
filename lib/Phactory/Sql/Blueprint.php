@@ -2,6 +2,8 @@
 
 namespace Phactory\Sql;
 
+use Phactory\Sql\Association\ManyToOne;
+
 class Blueprint {
     protected $_table;
     protected $_defaults;
@@ -63,32 +65,23 @@ class Blueprint {
      *
      * @param array $associated  [table name] => [Row]
      */
-    public function build($overrides = array(), $associated = array()) {
-        // process one-to-one and many-to-one relations
+    public function build(Array $overrides = array()) {
         $assoc_keys = array();
-        foreach($associated as $name => $row) {
-            if(!isset($this->_associations[$name])) {
-                throw new \Exception("No association '$name' defined");
-            }
 
-            $association = $this->_associations[$name];
-            if(!$association instanceof Association\ManyToMany) {
-                $fk_column = $association->getFromColumn();
-                $to_column = $association->getToColumn();
-                $assoc_keys[$fk_column] = $row->$to_column;
+        foreach ($this->_associations as $name => $association) {
+            if ($association instanceof Association\ManyToMany) {
+                continue;
             }
+            $associatedObject = factory()->create($name, true);
+            $assoc_keys[$association->getFromColumn()] = $associatedObject->{$association->getToColumn()};
         }
 
         $data = array_merge($this->_defaults, $assoc_keys);
-
         $this->_evalSequence($data);
-
         $built = new Row($this->_table, $data, $this->_phactory);
 
-        if($overrides) {
-            foreach($overrides as $field => $value) {
-                $built->$field = $value;
-            }
+        foreach($overrides as $field => $value) {
+            $built->$field = $value;
         }
 
         return $built;
@@ -100,26 +93,20 @@ class Blueprint {
      *
      * @param array $associated  [table name] => [Row]
      */
-    public function create($overrides = array(), $associated = array()) {
-        $built = $this->build($overrides, $associated);
+    public function create($overrides = array(), $returnIfExists = false) {
+
+        if ($returnIfExists) {
+            //toDo
+        }
+
+        $built = $this->build($overrides);
 
         // process any many-to-many associations
-        $many_to_many = array();
-        foreach($associated as $name => $row) {
-            $association = $this->_associations[$name];
-            if($association instanceof Association\ManyToMany) {
-                if(!is_array($row)) {
-                    $row = array($row);
-                }
-                $many_to_many[$name] = array($row, $association);
-            }
-        }
 
         $built->save();
-
-        if($many_to_many) {
-            $this->_associateManyToMany($built, $many_to_many);
-        }
+//        if($many_to_many) {
+//            $this->_associateManyToMany($built, $many_to_many);
+//        }
 
         return $built;
     }
