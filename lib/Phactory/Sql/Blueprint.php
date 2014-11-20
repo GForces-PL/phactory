@@ -65,20 +65,21 @@ class Blueprint {
      *
      * @param array $associated  [table name] => [Row]
      */
-    public function build(Array $overrides = array()) {
+    public function build(Array $overrides = array(), $returnIfExists = false) {
         $assoc_keys = array();
 
         foreach ($this->_associations as $name => $association) {
             if ($association instanceof Association\ManyToMany) {
                 continue;
             }
-            $associatedObject = factory()->create($name, true);
+            $associatedObject = factory()->create($name, array(), true);
             $assoc_keys[$association->getFromColumn()] = $associatedObject->{$association->getToColumn()};
         }
 
         $data = array_merge($this->_defaults, $assoc_keys);
         $this->_evalSequence($data);
         $built = new Row($this->_table, $data, $this->_phactory);
+        $built->setReturnIfExists($returnIfExists);
 
         foreach($overrides as $field => $value) {
             $built->$field = $value;
@@ -95,15 +96,14 @@ class Blueprint {
      */
     public function create($overrides = array(), $returnIfExists = false) {
 
-        if ($returnIfExists) {
-            //toDo
-        }
-
-        $built = $this->build($overrides);
+        $built = $this->build($overrides, $returnIfExists);
 
         // process any many-to-many associations
-
-        $built->save();
+        if ($returnIfExists) {
+            $built->returnIfExists();
+        } else {
+            $built->save();
+        }
 //        if($many_to_many) {
 //            $this->_associateManyToMany($built, $many_to_many);
 //        }
