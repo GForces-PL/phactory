@@ -119,14 +119,14 @@ class Blueprint {
         $db_util->disableForeignKeys();
 
         try {
-            $sql = "DELETE FROM `{$this->_table->getName()}`";
+            $sql = "DELETE FROM {$this->_table->quoteIdentifier($this->_table->getName())}";
             $this->_phactory->getConnection()->exec($sql);
         } catch(Exception $e) { }
 
         foreach($this->_associations as $association) {
             if($association instanceof Association\ManyToMany) {
                 try {
-                    $sql = "DELETE FROM `{$association->getJoinTable()}`";
+                    $sql = "DELETE FROM {$this->_table->quoteIdentifier($association->getJoinTable())}";
                     $this->_phactory->getConnection()->exec($sql);
                 } catch(Exception $e) { }
             }
