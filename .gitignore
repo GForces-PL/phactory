@@ -5,3 +5,4 @@ phpunit.xml
 reports/
 vendor/
 composer.lock
+.idea

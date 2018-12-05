@@ -27,7 +27,7 @@ class Row {
 
     public function save() {
         $pdo = $this->_phactory->getConnection();
-        $sql = "INSERT INTO `{$this->_table}` (";
+        $sql = "INSERT INTO {$this->_table->quoteIdentifier($this->_table->getName())} (";
 
         $data = array();
         $params = array();

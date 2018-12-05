@@ -15,7 +15,7 @@ class PgsqlUtil extends AbstractDbUtil
                 format_type(pg_attribute.atttypid, pg_attribute.atttypmod)
             FROM pg_index, pg_class, pg_attribute
             WHERE
-                pg_class.oid = '$table'::regclass AND
+                pg_class.relname = '$table' AND
                 indrelid = pg_class.oid AND
                 pg_attribute.attrelid = pg_class.oid AND
                 pg_attribute.attnum = any(pg_index.indkey)
